@@ -1,28 +1,38 @@
 "use client";
-
 import { useState } from "react";
 
 interface QuoteResponse {
   quote: string;
 }
 
+interface ErrorResponse {
+  error: string;
+}
+
 export default function Home() {
   const [quote, setQuote] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchQuote = async () => {
     setLoading(true);
+    setError(null); // Reset error state before making the request
     try {
-      const response = await fetch('/api/getQuote');
+      const response = await fetch('/api/getQuote2'); // Ensure this is the correct endpoint
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data: QuoteResponse = await response.json();
-      setQuote(data.quote);
+      const data: QuoteResponse | ErrorResponse = await response.json();
+      
+      if ('quote' in data) {
+        setQuote(data.quote);
+      } else {
+        throw new Error(data.error);
+      }
     } catch (error) {
       console.error("Error fetching quote:", error);
-      setQuote("Failed to fetch quote. Please try again later.");
+      setError("Failed to fetch quote. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -38,7 +48,10 @@ export default function Home() {
         >
           {loading ? 'Loading...' : 'Generate Quote'}
         </button>
-        {quote && (
+        {error && (
+          <p className="mt-4 text-xl text-center px-4 text-red-600">{error}</p>
+        )}
+        {quote && !error && (
           <p className="mt-4 text-xl text-center px-4">{quote}</p>
         )}
       </main>
