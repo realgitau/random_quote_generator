@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '', // Fallback to avoid undefined
+  apiKey: process.env.OPENAI_API_KEY || '', // Ensure API key is available
 });
 
 export default async function handler(
